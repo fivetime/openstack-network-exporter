@@ -14,6 +14,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/exporter-toolkit/web"
@@ -56,6 +57,10 @@ func main() {
 			log.Infof("%T not registered, metric set not enabled", c)
 		}
 	}
+
+	// Exporter health, whatever the enabled collectors: collector failures
+	// are otherwise only visible in the logs.
+	registry.MustRegister(log.ErrorsTotal, ovsdb.ReconnectsTotal)
 
 	handler := promhttp.HandlerFor(
 		registry,

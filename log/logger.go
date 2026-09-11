@@ -130,6 +130,7 @@ func Warningf(message string, args ...any) {
 
 // Write an ERR message to the log
 func Errf(message string, args ...any) {
+	ErrorsTotal.Inc()
 	if verbosity < syslog.LOG_ERR {
 		return
 	}
@@ -147,6 +148,7 @@ func ErrorLogger() *log.Logger {
 
 // Write a CRIT message to the log
 func Critf(message string, args ...any) {
+	ErrorsTotal.Inc()
 	if verbosity < syslog.LOG_CRIT {
 		return
 	}
@@ -177,6 +179,7 @@ func (s *sink) Enabled(level int) bool {
 }
 
 func (s *sink) Error(e error, msg string, args ...any) {
+	ErrorsTotal.Inc()
 	if verbosity < syslog.LOG_ERR {
 		return
 	}

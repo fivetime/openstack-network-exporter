@@ -89,6 +89,13 @@ ovs_build_info collector=vswitch set=base type=gauge labels=ovs_version,dpdk_ver
 ovs_dpdk_initialized collector=vswitch set=base type=gauge labels= help="Has the DPDK subsystem been initialized."
 ```
 
+The exporter also reports its own health, whatever collectors are enabled:
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `openstack_network_exporter_errors_total` | counter | Error and critical messages logged by the exporter, whatever the log level: for example a collector that cannot reach ovsdb-server or a unixctl socket. It stays at zero on a healthy node; an increase means some metrics are missing from the scrapes. |
+| `openstack_network_exporter_ovsdb_reconnects_total` | counter | OVSDB clients re-created after losing their connection to ovsdb-server, for example after ovsdb-server restarted. |
+
 ## Contributing
 
 [Fork the project][fork] if you haven't already done so. Configure your clone
