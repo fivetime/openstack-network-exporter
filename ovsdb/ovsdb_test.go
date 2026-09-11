@@ -56,8 +56,7 @@ func startServer(t *testing.T, path string) *server.OvsdbServer {
 
 // socketProxy stands for ovsdb-server's db.sock. Stopping it closes every
 // client connection and removes the socket file, as a restart of
-// ovsdb-server does. The in-memory server cannot be used for that: its
-// Close() only closes the listener and keeps accepted connections open.
+// ovsdb-server does, while the database behind it keeps running.
 type socketProxy struct {
 	listener net.Listener
 	mu       sync.Mutex

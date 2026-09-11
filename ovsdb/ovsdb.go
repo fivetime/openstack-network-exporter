@@ -5,7 +5,6 @@ package ovsdb
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 
@@ -36,7 +35,16 @@ func connect(ctx context.Context) (client.Client, error) {
 	defer ovsdbLock.Unlock()
 
 	if ovsdbConn != nil {
-		return ovsdbConn, nil
+		if ovsdbConn.Connected() {
+			return ovsdbConn, nil
+		}
+		// ovsdb-server closed the connection (restarted, socket recreated).
+		// The client is created without WithReconnect and does not
+		// reconnect by itself: drop it and dial again.
+		log.Warningf("lost connection to ovsdb, reconnecting")
+		ovsdbConn.Close()
+		ovsdbConn = nil
+		ReconnectsTotal.Inc()
 	}
 
 	endpoint := fmt.Sprintf("unix:%s/db.sock", config.OvsRundir())
@@ -72,34 +80,8 @@ func connect(ctx context.Context) (client.Client, error) {
 
 	ovsdbModel = mod
 	ovsdbConn = db
-	go forgetOnDisconnect(db)
 
 	return db, nil
-}
-
-// forgetOnDisconnect drops the cached client once ovsdb-server closes its
-// connection (ovsdb-server restarted, socket recreated). The client is
-// created without WithReconnect and never reconnects by itself, and after a
-// server-side disconnect libovsdb clears its RPC client but leaves
-// Connected() returning true: every call then fails with "not connected"
-// until the exporter restarts, so Connected() cannot be used to detect it.
-func forgetOnDisconnect(db client.Client) {
-	<-db.DisconnectNotify()
-	forget(db)
-}
-
-// forget drops db if it is still the cached client, so that the next call
-// dials ovsdb-server again.
-func forget(db client.Client) {
-	ovsdbLock.Lock()
-	defer ovsdbLock.Unlock()
-	if ovsdbConn != db {
-		return
-	}
-	log.Warningf("lost connection to ovsdb, reconnecting on the next call")
-	db.Close()
-	ovsdbConn = nil
-	ReconnectsTotal.Inc()
 }
 
 func Get(ctx context.Context, result model.Model) error {
@@ -120,11 +102,6 @@ func Get(ctx context.Context, result model.Model) error {
 	})
 	if err != nil {
 		log.Errf("Transact: %s", err)
-		if errors.Is(err, client.ErrNotConnected) {
-			// The disconnect notification is sent without blocking and
-			// can be missed: drop the dead client here as well.
-			forget(db)
-		}
 		return err
 	}
 	for _, r := range res {
@@ -161,11 +138,6 @@ func List[T model.Model](ctx context.Context, results *[]T) error {
 	})
 	if err != nil {
 		log.Errf("Transact: %s", err)
-		if errors.Is(err, client.ErrNotConnected) {
-			// The disconnect notification is sent without blocking and
-			// can be missed: drop the dead client here as well.
-			forget(db)
-		}
 		return err
 	}
 
