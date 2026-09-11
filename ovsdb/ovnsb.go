@@ -60,7 +60,16 @@ func sbConnect(ctx context.Context) (client.Client, error) {
 	defer sbLock.Unlock()
 
 	if sbConn != nil {
-		return sbConn, nil
+		if sbConn.Connected() {
+			return sbConn, nil
+		}
+		// The SB server closed the connection (restart, leader change).
+		// The client is created without WithReconnect: drop it and dial
+		// again.
+		log.Warningf("lost connection to the OVN SB DB, reconnecting")
+		sbConn.Close()
+		sbConn = nil
+		ReconnectsTotal.Inc()
 	}
 
 	endpoint := config.OvnSBConnection()

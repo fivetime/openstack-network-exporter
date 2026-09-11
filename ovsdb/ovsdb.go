@@ -22,11 +22,11 @@ var (
 	ovsdbConn  client.Client
 	ovsdbModel model.DatabaseModel
 
-	// ReconnectsTotal counts the OVSDB clients dropped after they lost their
-	// connection to ovsdb-server.
+	// ReconnectsTotal counts the OVSDB clients (Open_vSwitch, OVN Southbound)
+	// dropped after they lost their connection to their server.
 	ReconnectsTotal = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "openstack_network_exporter_ovsdb_reconnects_total",
-		Help: "Number of times the OVSDB client was re-created after losing its connection to ovsdb-server.",
+		Help: "Number of times an OVSDB client (Open_vSwitch or OVN Southbound) was re-created after losing its connection to the server.",
 	})
 )
 

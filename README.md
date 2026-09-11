@@ -94,7 +94,7 @@ The exporter also reports its own health, whatever collectors are enabled:
 | Metric | Type | Description |
 |--------|------|-------------|
 | `openstack_network_exporter_errors_total` | counter | Error and critical messages logged by the exporter, whatever the log level: for example a collector that cannot reach ovsdb-server or a unixctl socket. It stays at zero on a healthy node; an increase means some metrics are missing from the scrapes. |
-| `openstack_network_exporter_ovsdb_reconnects_total` | counter | OVSDB clients re-created after losing their connection to ovsdb-server, for example after ovsdb-server restarted. |
+| `openstack_network_exporter_ovsdb_reconnects_total` | counter | OVSDB clients (Open_vSwitch, OVN Southbound) re-created after losing their connection to their server, for example after ovsdb-server restarted or the SB leader changed. |
 
 ## Contributing
 
