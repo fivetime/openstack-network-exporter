@@ -54,4 +54,4 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 )
 
-replace github.com/ovn-kubernetes/libovsdb => github.com/fivetime/libovsdb v0.0.0-20260911162553-dc8908367cc8
+replace github.com/ovn-kubernetes/libovsdb => github.com/fivetime/libovsdb v0.0.0-20260911162553-1d50a613ba35

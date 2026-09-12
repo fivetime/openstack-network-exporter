@@ -14,8 +14,8 @@ github.com/coreos/go-systemd/v22 v22.7.0 h1:LAEzFkke61DFROc7zNLX/WA2i5J8gYqe0rSj
 github.com/coreos/go-systemd/v22 v22.7.0/go.mod h1:xNUYtjHu2EDXbsxz1i41wouACIwT7Ybq9o0BQhMwD0w=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/fivetime/libovsdb v0.0.0-20260911162553-dc8908367cc8 h1:VK8GhIIFiDfacW/gf8ANAH7zDPMViOiU8MG54+JsRg4=
-github.com/fivetime/libovsdb v0.0.0-20260911162553-dc8908367cc8/go.mod h1:FE+0C838CfGFOuoCbsR3tcEAIY4Xxicu+Nhv19LA900=
+github.com/fivetime/libovsdb v0.0.0-20260911162553-1d50a613ba35 h1:xCEntyKLvLivX0UKpgYzD1C030+sstLH8QjeYFNpBtg=
+github.com/fivetime/libovsdb v0.0.0-20260911162553-1d50a613ba35/go.mod h1:FE+0C838CfGFOuoCbsR3tcEAIY4Xxicu+Nhv19LA900=
 github.com/gabriel-vasile/mimetype v1.4.13 h1:46nXokslUBsAJE/wMsp5gtO500a4F3Nkz9Ufpk2AcUM=
 github.com/gabriel-vasile/mimetype v1.4.13/go.mod h1:d+9Oxyo1wTzWdyVUPMmXFvp4F9tea18J8ufA774AB3s=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
