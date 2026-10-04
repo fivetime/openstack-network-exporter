@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -60,16 +61,7 @@ func sbConnect(ctx context.Context) (client.Client, error) {
 	defer sbLock.Unlock()
 
 	if sbConn != nil {
-		if sbConn.Connected() {
-			return sbConn, nil
-		}
-		// The SB server closed the connection (restart, leader change).
-		// The client is created without WithReconnect: drop it and dial
-		// again.
-		log.Warningf("lost connection to the OVN SB DB, reconnecting")
-		sbConn.Close()
-		sbConn = nil
-		ReconnectsTotal.Inc()
+		return sbConn, nil
 	}
 
 	endpoint := config.OvnSBConnection()
@@ -118,7 +110,26 @@ func sbConnect(ctx context.Context) (client.Client, error) {
 
 	sbModel = mod
 	sbConn = db
+	go sbForgetOnDisconnect(db)
 	return db, nil
+}
+
+// libovsdb keeps Connected() true after server-side disconnect.
+func sbForgetOnDisconnect(db client.Client) {
+	<-db.DisconnectNotify()
+	sbForget(db)
+}
+
+func sbForget(db client.Client) {
+	sbLock.Lock()
+	defer sbLock.Unlock()
+	if sbConn != db {
+		return
+	}
+	log.Warningf("lost connection to the OVN SB DB, reconnecting on the next call")
+	db.Close()
+	sbConn = nil
+	ReconnectsTotal.Inc()
 }
 
 func SBList[T model.Model](ctx context.Context, results *[]T) error {
@@ -138,6 +149,10 @@ func SBList[T model.Model](ctx context.Context, results *[]T) error {
 		Table: info.Metadata.TableName,
 	})
 	if err != nil {
+		if errors.Is(err, client.ErrNotConnected) {
+			// Disconnect notification can be missed; drop the dead client here too.
+			sbForget(db)
+		}
 		return fmt.Errorf("SB Transact: %w", err)
 	}
 
